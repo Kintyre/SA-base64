@@ -27,34 +27,34 @@ ret = getattr(module, fct)( original )
 
 print(ret)
 
-# replace unpritable characters by their hexadecimal 
+# replace unpritable characters by their hexadecimal
 # representation. Example: \x00
 conversion = ""
 for c in ret:
 
-	print(c)
-	print(ord(c))
-	
-	x = c
-	
-	# Ref: http://www.asciitable.com/
-	if ord(c) < ord(' ') or ord(c) > ord('~') :
-		if special_chars == "remove":
-			continue
-		elif special_chars == "hash":
-			x = "#"
-		elif special_chars == "star":
-			x = "*"
-		elif special_chars == "convert_newlines" and ord(c)== 10:
-			x = "\n"
-		elif special_chars == "convert_newlines" and ord(c) == 13:
-			x = "\r"
-		else:
-			x = "\\x" + "{0:02x}".format(ord(c))
-	else:
-		x = c
-		
-	conversion += x
+    print(c)
+    print(ord(c))
+
+    x = c
+
+    # Ref: http://www.asciitable.com/
+    if ord(c) < ord(' ') or ord(c) > ord('~') :
+        if special_chars == "remove":
+            continue
+        elif special_chars == "hash":
+            x = "#"
+        elif special_chars == "star":
+            x = "*"
+        elif special_chars == "convert_newlines" and ord(c)== 10:
+            x = "\n"
+        elif special_chars == "convert_newlines" and ord(c) == 13:
+            x = "\r"
+        else:
+            x = "\\x" + "{0:02x}".format(ord(c))
+    else:
+        x = c
+
+    conversion += x
 
 
 print(conversion)
