@@ -1,0 +1,9 @@
+pip>=20
+bump2version>=1.0.1
+kintyre-splunk-conf>=0.9
+pre-commit
+autopep8
+
+
+# Core requirements needed at run-time.
+-r requirements.txt

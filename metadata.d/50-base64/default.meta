@@ -1,0 +1,9 @@
+[commands]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[commands/base64]
+access = read : [ role_base64_user ], write : [ admin, sc_admin ]
+
+[searchbnf]
+export = system

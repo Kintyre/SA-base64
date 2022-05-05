@@ -1,0 +1,50 @@
+{
+    "layers": [
+        {
+            "name": "app-python",
+            "layer_name": "20-base",
+            "cookiecutter": {
+                "vendor": "Base64",
+                "vendor_product": "Base64",
+                "has_ui": false,
+                "app_folder": "SA-base64",
+                "app_label": "Base64 Add-On for Splunk",
+                "build_tool": "GitHub_Actions",
+                "author_splunkid": "kintyre",
+                "author_email": "splunkbase@kintyre.co",
+                "author_company": "Kintyre",
+                "on_splunkbase": true,
+                "splunkbase_id": "0",
+                "git_repo": "https://github.com/Kintyre/SA-base64",
+                "git_branch": "main"
+            }
+        },
+        {
+            "name": "search-command",
+            "layer_name": "50-base64",
+            "cookiecutter": {
+                "app_folder": "SA-base64",
+                "spl_class": "B64Command",
+                "spl_script": "b64",
+                "spl_command": "base64",
+                "spl_type": "Streaming",
+                "need_auth": "False",
+                "conf_name": "base64",
+                "conf_type": "entity",
+                "json_output": false
+            }
+        }
+    ],
+    "layer_mounts": [
+        "default",
+        "metadata"
+    ],
+    "source": {
+        "repo": "git@github.com:Kintyre/cypress-cookiecutter.git",
+        "rev": "v1.8.0"
+    },
+    "tool_info": {
+        "program": "CrispyCookie",
+        "version": "0.7.0"
+    }
+}
