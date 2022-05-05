@@ -14,7 +14,7 @@ The default build script only builds with a single version of Python, and doesn'
 
 Setup a local virtual environment in the top level of the package to install the necessary build and runtime requirements.
 
-    python3 -m virtualenv venv
+    python3 -m venv venv
     . venv/bin/activate
     python -m pip install -U -r requirements-dev.txt
 
