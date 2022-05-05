@@ -25,26 +25,46 @@ class B64Command(StreamingCommand):
      | base64 [action=(encode|decode)] field=<field> [mode=(replace|append)] [special_chars=(keep|remove|hash)]
      """
 
-    field = Option(name='field',  require=True)
-    action = Option(name='action', require=False, default="encode")
-    mode = Option(name='mode',   require=False, default="replace")
-    special_chars = Option(name='special_chars',   require=False, default="keep")
-    convert_newlines = Option(name='convert_newlines', require=False,
-                              default=True, validate=validators.Boolean())
-    fix_padding = Option(name='fix_padding', require=False,
-                         default=True, validate=validators.Boolean())
-    suppress_error = Option(name='suppress_error', require=False,
-                            default=False, validate=validators.Boolean())
+    field = Option(
+        name='field',
+        require=True)
+    action = Option(
+        name='action',
+        require=False,
+        default="encode")
+    mode = Option(
+        name='mode',
+        require=False,
+        default="replace")
+    special_chars = Option(
+        name='special_chars',
+        require=False,
+        default="keep")
+    convert_newlines = Option(
+        name='convert_newlines',
+        require=False,
+        default=True,
+        validate=validators.Boolean())
+    fix_padding = Option(
+        name='fix_padding',
+        require=False,
+        default=True,
+        validate=validators.Boolean())
+    suppress_error = Option(
+        name='suppress_error',
+        require=False,
+        default=False,
+        validate=validators.Boolean())
 
     def stream(self, records):
-        """ Streaming function that processes and yields event records 1:1 to the Splunk stream pipeline, in the same order as received.
+        """ Streaming function that processes and yields event records 1:1 to
+        the Splunk stream pipeline, in the same order as received.
         """
-        module = sys.modules['base64']
 
         if self.action == "decode":
-            fct = "b64decode"
+            fct = b64decode
         else:
-            fct = "b64encode"
+            fct = b64encode
 
         if self.mode == "append":
             dest_field = self.field + "_base64"
@@ -58,28 +78,31 @@ class B64Command(StreamingCommand):
 
             try:
 
-                if fct == "b64encode":
-                    # Convert to bytestring if encode and the field is a string
+                if fct is b64encode:
+                    # Convert to bytes if encode and the field is a string
                     if isinstance(event[self.field], str):
                         original = event[self.field].encode("utf-8")
                     else:
                         original = event[self.field]
 
-                if fct == "b64decode":
+                elif fct is b64decode:
                     # Fix padding
                     if self.fix_padding:
+                        # Can't we just use modulus '%' here? Something like
+                        #  s += "=" * (len(s) % 4)
                         original = event[self.field].ljust(
-                            (int)(math.ceil(len(event[self.field]) / 4)) * 4, '=')
+                            int(math.ceil(len(event[self.field]) / 4)) * 4, '=')
                     else:
                         original = event[self.field]
 
-                ret = getattr(module, fct)(original)
+                ret = fct(original)
 
-                # replace unpritable characters by their hexadecimal
+                # replace unprintable characters by their hexadecimal
                 # representation. Example: \x00
                 event[dest_field] = ""
-                for c in ret:
 
+                # This feels very "C" to me. Q: Is there a built-in encoding that will do this directly?
+                for c in ret:
                     x = c
                     if c < ord(' ') or c > ord('~'):
                         if self.convert_newlines and c == 10:
@@ -101,7 +124,7 @@ class B64Command(StreamingCommand):
 
             except Exception as e:
                 if not self.suppress_error:
-                    raise e
+                    self.error_exit("Failure due to {}".format(e))
 
             yield event
 
