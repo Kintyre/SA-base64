@@ -18,7 +18,6 @@ from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, 
 
 @Configuration()
 class B64Command(StreamingCommand):
-
     """
     Encode a string to Base64
     Decode a Base64 content
@@ -26,32 +25,35 @@ class B64Command(StreamingCommand):
      | base64 [action=(encode|decode)] field=<field> [mode=(replace|append)] [special_chars=(keep|remove|hash)]
      """
 
-    field  = Option(name='field',  require=True)
+    field = Option(name='field',  require=True)
     action = Option(name='action', require=False, default="encode")
-    mode   = Option(name='mode',   require=False, default="replace")
+    mode = Option(name='mode',   require=False, default="replace")
     special_chars = Option(name='special_chars',   require=False, default="keep")
-    convert_newlines = Option(name='convert_newlines', require=False, default=True, validate=validators.Boolean())
-    fix_padding = Option(name='fix_padding', require=False, default=True, validate=validators.Boolean())
-    suppress_error = Option(name='suppress_error', require=False, default=False, validate=validators.Boolean())
+    convert_newlines = Option(name='convert_newlines', require=False,
+                              default=True, validate=validators.Boolean())
+    fix_padding = Option(name='fix_padding', require=False,
+                         default=True, validate=validators.Boolean())
+    suppress_error = Option(name='suppress_error', require=False,
+                            default=False, validate=validators.Boolean())
 
     def stream(self, records):
         """ Streaming function that processes and yields event records 1:1 to the Splunk stream pipeline, in the same order as received.
         """
         module = sys.modules['base64']
 
-        if self.action == "decode" :
+        if self.action == "decode":
             fct = "b64decode"
         else:
             fct = "b64encode"
 
-        if self.mode == "append" :
+        if self.mode == "append":
             dest_field = self.field + "_base64"
         else:
             dest_field = self.field
 
         for event in records:
 
-            if not self.field in event :
+            if not self.field in event:
                 continue
 
             try:
@@ -66,20 +68,20 @@ class B64Command(StreamingCommand):
                 if fct == "b64decode":
                     # Fix padding
                     if self.fix_padding:
-                        original = event[self.field].ljust((int)(math.ceil(len(event[self.field]) / 4)) * 4, '=')
+                        original = event[self.field].ljust(
+                            (int)(math.ceil(len(event[self.field]) / 4)) * 4, '=')
                     else:
                         original = event[self.field]
 
-
-                ret = getattr(module, fct)( original )
+                ret = getattr(module, fct)(original)
 
                 # replace unpritable characters by their hexadecimal
                 # representation. Example: \x00
-                event[ dest_field ] = ""
+                event[dest_field] = ""
                 for c in ret:
 
                     x = c
-                    if c < ord(' ') or c > ord('~') :
+                    if c < ord(' ') or c > ord('~'):
                         if self.convert_newlines and c == 10:
                             x = "\n"
                         elif self.convert_newlines and c == 13:
@@ -95,10 +97,10 @@ class B64Command(StreamingCommand):
                     else:
                         x = chr(x)
 
-                    event[ dest_field ] += x
+                    event[dest_field] += x
 
             except Exception as e:
-                if not self.suppress_error :
+                if not self.suppress_error:
                     raise e
 
             yield event
