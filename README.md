@@ -35,9 +35,9 @@ If you would like to develop or build this TA from source, see the [development]
 ## Authors
 
  * Author: Robin Wu ([1.0](https://splunkbase.splunk.com/app/1922))
- * Author: Cedric Le Roux ([1.1])(https://splunkbase.splunk.com/app/5143/))
+ * Author: Cedric Le Roux ([1.1](https://splunkbase.splunk.com/app/5143/))
  * Author: Cameron Just ([2.0.x](https://github.com/cameronjust/TA-base64))
- * Author: Lowell Alleman ([3.0](https://github.com/Kintyre/TA-base64))
+ * Author: Lowell Alleman ([3.0](https://github.com/Kintyre/SA-base64))
 
 
 ## Changelog
