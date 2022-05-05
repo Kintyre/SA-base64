@@ -28,7 +28,8 @@
                 "spl_script": "b64",
                 "spl_command": "base64",
                 "spl_type": "Streaming",
-                "need_auth": "False",
+                "need_logging": false,
+                "need_auth": false,
                 "conf_name": "base64",
                 "conf_type": "entity",
                 "json_output": false
