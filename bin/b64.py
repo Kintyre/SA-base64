@@ -7,13 +7,25 @@ __version__ = "3.0.0"
 
 import os
 import sys
-import math
+import codecs
 
 from base64 import b64decode, b64encode
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))  # nopep8
 
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
+
+
+def hash_errors(exc):
+    return "#", exc.end
+
+
+def star_errors(exc):
+    return "*", exc.end
+
+
+codecs.register_error("replace_hash", hash_errors)
+codecs.register_error("replace_star", star_errors)
 
 
 @Configuration()
@@ -36,6 +48,10 @@ class B64Command(StreamingCommand):
         name='mode',
         require=False,
         default="replace")
+    encoding = Option(
+        name="encoding",
+        require=False,
+        default="utf-8")
     special_chars = Option(
         name='special_chars',
         require=False,
@@ -61,10 +77,30 @@ class B64Command(StreamingCommand):
         the Splunk stream pipeline, in the same order as received.
         """
 
-        if self.action == "decode":
-            fct = b64decode
+        if self.special_chars == "remove":
+            errors = "replace"
+        elif self.special_chars == "hash":
+            errors = "replace_hash"
+        elif self.special_chars == "star":
+            errors = "replace_star"
         else:
-            fct = b64encode
+            # replace unprintable characters by their hexadecimal
+            # representation. Example: \x00
+            errors = "backslashreplace"
+
+        if self.action == "decode":
+            def fct(s):
+                # Fix padding
+                if self.fix_padding:
+                    s += b"==="
+                s = b64decode(s)
+                return s.decode(self.encoding, errors=errors)
+        else:
+            def fct(s):
+                if isinstance(s, str):
+                    # Convert to bytes if encode and the field is a string
+                    s = s.encode(self.encoding)
+                return b64encode(s).decode("utf-8")
 
         if self.mode == "append":
             dest_field = self.field + "_base64"
@@ -72,59 +108,24 @@ class B64Command(StreamingCommand):
             dest_field = self.field
 
         for event in records:
-
             if not self.field in event:
+                # Keep event (unmodified)
+                yield event
                 continue
 
             try:
+                ret = fct(event[self.field])
 
-                if fct is b64encode:
-                    # Convert to bytes if encode and the field is a string
-                    if isinstance(event[self.field], str):
-                        original = event[self.field].encode("utf-8")
-                    else:
-                        original = event[self.field]
-
-                elif fct is b64decode:
-                    # Fix padding
-                    if self.fix_padding:
-                        # Can't we just use modulus '%' here? Something like
-                        #  s += "=" * (len(s) % 4)
-                        original = event[self.field].ljust(
-                            int(math.ceil(len(event[self.field]) / 4)) * 4, '=')
-                    else:
-                        original = event[self.field]
-
-                ret = fct(original)
-
-                # replace unprintable characters by their hexadecimal
-                # representation. Example: \x00
-                event[dest_field] = ""
-
-                # This feels very "C" to me. Q: Is there a built-in encoding that will do this directly?
-                for c in ret:
-                    x = c
-                    if c < ord(' ') or c > ord('~'):
-                        if self.convert_newlines and c == 10:
-                            x = "\n"
-                        elif self.convert_newlines and c == 13:
-                            x = "\r"
-                        elif self.special_chars == "remove":
-                            continue
-                        elif self.special_chars == "hash":
-                            x = "#"
-                        elif self.special_chars == "star":
-                            x = "*"
-                        else:
-                            x = "\\x" + "{0:02x}".format(c)
-                    else:
-                        x = chr(x)
-
-                    event[dest_field] += x
+                if not self.convert_newlines:
+                    ret = ret.replace("\n", "\\n").replace("\r", "\\r")
+                event[dest_field] = ret
 
             except Exception as e:
-                if not self.suppress_error:
-                    self.error_exit("Failure due to {}".format(e))
+                if self.suppress_error:
+                    # Put exception in the destination field so that the error isn't completely silent
+                    event[dest_field] = "Exception: {}".format(e)
+                else:
+                    self.error_exit(e, "Failure due to {}".format(e))
 
             yield event
 
