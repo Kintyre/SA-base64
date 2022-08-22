@@ -1,6 +1,6 @@
 # SA-base64
 
-Version 3.1.0
+Version 3.1.1
 
 _Base64 Add-On for Splunk_ provides a custom command for base64 encoding and decoding
 
