@@ -92,7 +92,7 @@ class B64Command(StreamingCommand):
             def fct(s):
                 # Fix padding
                 if self.fix_padding:
-                    s += b"==="
+                    s += "==="
                 s = b64decode(s)
                 return s.decode(self.encoding, errors=errors)
         else:
