@@ -7,6 +7,8 @@ __version__ = "3.1.1"
 
 import os
 import sys
+import re
+import binascii
 import codecs
 
 from base64 import b64decode, b64encode
@@ -26,6 +28,22 @@ def star_errors(exc):
 
 codecs.register_error("replace_hash", hash_errors)
 codecs.register_error("replace_star", star_errors)
+
+
+def decode_base64(data, altchars='+/'):
+    # Inspired from https://stackoverflow.com/a/9807138
+    #               https://stackoverflow.com/a/2942127
+    data = re.sub(r'[^a-zA-Z0-9%s]+' % altchars, "", data)  # normalize
+    missing_padding = len(data) % 4
+    if missing_padding:
+        data += '=' * (4 - missing_padding)
+    try:
+        return b64decode(data, altchars)
+    except binascii.Error:
+        # Dropping last character and try again
+        lens = len(data) - 1
+        lenx = lens - lens % (4 if lens % 4 else 4)
+        return b64decode(data[:lenx], altchars)
 
 
 @Configuration()
@@ -90,16 +108,23 @@ class B64Command(StreamingCommand):
 
         if self.action == "decode":
             def fct(s):
+                # Detect URL-safe base64 encodings
+                if "-" in s or "_" in s:
+                    alt_chars = "-_"
+                else:
+                    alt_chars = "+/"
                 # Fix padding
                 if self.fix_padding:
-                    s += "==="
-                s = b64decode(s)
+                    s = decode_base64(s, alt_chars)
+                else:
+                    s = b64decode(s, alt_chars)
                 return s.decode(self.encoding, errors=errors)
         else:
             def fct(s):
                 if isinstance(s, str):
                     # Convert to bytes if encode and the field is a string
                     s = s.encode(self.encoding)
+                # Splunk always sends data to us in UTF-8
                 return b64encode(s).decode("utf-8")
 
         if self.mode == "append":
