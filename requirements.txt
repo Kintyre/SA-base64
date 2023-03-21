@@ -1,9 +1,8 @@
 # Version pinning for consistent builds
 
-six==1.16.0
-cypresspoint==0.7.2
-splunk-sdk==1.6.19
-requests==2.27.1
+cypresspoint==0.8.0
+splunk-sdk==1.7.3
+requests==2.28.2
 
 # COOKIECUTTER-TODO: List the required Python libraries
 #pytz>=2022.1

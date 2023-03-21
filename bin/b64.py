@@ -107,7 +107,7 @@ class B64Command(StreamingCommand):
         if will_execute:
             self.logger.info("Launching version %s", __version__)
 
-        ''' COOKIECUTTER-TODO: Enable/delete: this block of code will prevent unused/unknown paramaters
+        ''' COOKIECUTTER-TODO: Enable/delete: this block of code will prevent unused/unknown parameters
         # Check to see if an unused arguments remain after argument parsing
         if self.fieldnames:
             self.write_error("The following arguments to base64 are "
