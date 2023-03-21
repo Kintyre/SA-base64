@@ -16,7 +16,8 @@
                 "on_splunkbase": true,
                 "splunkbase_id": "0",
                 "git_repo": "https://github.com/Kintyre/SA-base64",
-                "git_branch": "main"
+                "git_branch": "main",
+                "_use_pre_release": false
             }
         },
         {
@@ -42,10 +43,10 @@
     ],
     "source": {
         "repo": "git@github.com:Kintyre/cypress-cookiecutter.git",
-        "rev": "v1.9.0"
+        "rev": "v1.10.2"
     },
     "tool_info": {
         "program": "CrispyCookie",
-        "version": "0.7.0"
+        "version": "0.7.1"
     }
 }

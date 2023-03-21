@@ -2,7 +2,7 @@
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.5.0
+  rev: v4.4.0
   hooks:
     - id: check-merge-conflict
     - id: check-json
@@ -12,12 +12,12 @@ repos:
       args: [ '--maxkb=200' ]
 
 - repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.5.4
+  rev: v2.0.1
   hooks:
     - id: autopep8
 
 - repo: https://github.com/Kintyre/ksconf
-  rev: v0.9.0
+  rev: v0.10.1
   hooks:
     - id: ksconf-check
     - id: ksconf-sort
@@ -26,12 +26,12 @@ repos:
 
 # Ensure 'mixed-line-ending' runs last.  Other edit-in-place tools make result in the use of native EOL on Windows.
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.5.0
+  rev: v4.4.0
   hooks:
     - id: trailing-whitespace
-      exclude: README\.md
+      exclude: README\.md$
     - id: end-of-file-fixer
-      exclude: (README\.md|\.bumpversion.cfg)$
+      exclude: (README\.md|\.bumpversion\.cfg)$
     - id: mixed-line-ending
       args: [ '--fix=lf' ]
 

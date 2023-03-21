@@ -52,4 +52,4 @@ If you would like to develop or build this TA from source, see the [development]
 
 ---
 
-This addon was built from the [Kintyre Splunk App builder](https://github.com/Kintyre/cypress-cookiecutter) (version 1.9.0) [cookiecutter](https://github.com/audreyr/cookiecutter) project.
+This addon was built from the [Kintyre Splunk App builder](https://github.com/Kintyre/cypress-cookiecutter) (version 1.10.2) [cookiecutter](https://github.com/audreyr/cookiecutter) project.
